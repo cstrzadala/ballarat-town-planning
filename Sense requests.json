@@ -1,0 +1,207 @@
+PUT /_template/ballarat-town-planning-register-template
+{
+  "order": 0,
+  "template": "ballarat-town-planning-register",
+  "mappings": {
+    "_default_": {
+      "properties": {
+        "geometry": {
+          "properties": {
+            "coordinates": {
+              "type": "geo_point"
+            },
+            "type": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "App_Number": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "App_Type": {
+          "type": "multi_field",
+          "fields": {
+            "App_Type": {
+              "type": "string"
+            },
+            "raw": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "App_Year": {
+          "type": "Integer"
+        },
+        "Application_Date": {
+          "type": "date",
+          "format": "dateOptionalTime"
+        },
+        "Description": {
+          "type": "multi_field",
+          "fields": {
+            "Description": {
+              "type": "string"
+            },
+            "raw": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "Location": {
+          "type": "multi_field",
+          "fields": {
+            "Location": {
+              "type": "string"
+            },
+            "raw": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "Status": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "Ward": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "lat": {
+          "type": "float"
+        },
+        "long": {
+          "type": "float"
+        },
+        "propnum": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "aliases": {}
+}
+
+GET _template
+
+DELETE ballarat*
+
+GET /ballarat-town-planning-register/_mapping
+
+POST /ballarat-town-planning-register/_search?search_type=count
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+POST /ballarat-town-planning-register/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+POST /ballarat-town-planning-register/_search?search_type=count
+{
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "ward_count": {
+      "terms": {
+        "field": "Ward",
+        "size": 10
+      }
+    }
+  }
+}
+
+POST /ballarat-town-planning-register/_search
+{
+  "query": {
+    "filtered": {
+      "query": {
+        "match_all": {}
+      },
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "term": {
+                "App_Year": "2010"
+              }
+            },
+            {
+              "term": {
+                "Status": "Permit Approved"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+
+POST /ballarat-town-planning-register/_search
+{
+  "query": {
+    "filtered": {
+      "query": {
+        "match_phrase_prefix": {
+          "Description": "Subdivide the land into"
+        }
+      },
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "term": {
+                "App_Year": "2010"
+              }
+            },
+            {
+              "term": {
+                "Status": "Permit Approved"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+
+POST ballarat-town-planning-register/_search
+{
+  "fields": [
+    "App_Type"
+  ],
+  "query": {
+    "match_phrase_prefix": {
+      "App_Type": "Sub"
+    }
+  }
+}
+
+
+
+
+GET /_search
+{
+  "query": {
+    "filtered": {
+      "query": {
+        "match": { "tweet": "full text search" }
+      },
+      "filter": {
+        "range": { "created": { "gte": "now-1d/d" }}
+      }
+    }
+  }
+}
